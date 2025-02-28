@@ -136,6 +136,61 @@ module.exports = function(app) {
     
     res.json(track);
   });
+  
+  // Обновление трека по ID
+  app.put('/api/tracks/:id', upload.fields([
+    { name: 'coverImage', maxCount: 1 }
+  ]), (req, res) => {
+    try {
+      const { title, artist, genre, description } = req.body;
+      const trackId = req.params.id;
+      
+      const trackIndex = tracks.findIndex(t => t.id === trackId);
+      
+      if (trackIndex === -1) {
+        return res.status(404).json({ message: 'Трек не найден' });
+      }
+      
+      const track = tracks[trackIndex];
+      
+      // Обновляем текстовые поля
+      if (title) track.title = title;
+      if (artist) track.artist = artist;
+      if (genre) track.genre = genre;
+      if (description !== undefined) track.description = description;
+      
+      // Обновляем обложку, если есть
+      if (req.files && req.files.coverImage) {
+        const coverImage = req.files.coverImage[0];
+        track.coverImage = `/uploads/covers/${coverImage.filename}`;
+      }
+      
+      res.json(track);
+    } catch (error) {
+      console.error('Ошибка при обновлении трека:', error);
+      res.status(500).json({ message: 'Ошибка сервера при обновлении трека' });
+    }
+  });
+  
+  // Удаление трека по ID
+  app.delete('/api/tracks/:id', (req, res) => {
+    try {
+      const trackId = req.params.id;
+      const trackIndex = tracks.findIndex(t => t.id === trackId);
+      
+      if (trackIndex === -1) {
+        return res.status(404).json({ message: 'Трек не найден' });
+      }
+      
+      // Удаляем трек из массива
+      tracks.splice(trackIndex, 1);
+      
+      res.status(200).json({ message: 'Трек успешно удален' });
+    } catch (error) {
+      console.error('Ошибка при удалении трека:', error);
+      res.status(500).json({ message: 'Ошибка сервера при удалении трека' });
+    }
+  });
 
   // Загрузка трека
   app.post('/api/tracks', upload.fields([

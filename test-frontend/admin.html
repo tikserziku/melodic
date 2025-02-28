@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melodic Linker - Админ-панель</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .track-card {
+            transition: all 0.3s ease;
+        }
+        .track-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-white shadow-sm px-4 py-2">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="/" class="flex items-center text-xl font-bold text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    </svg>
+                    Melodic Linker
+                </a>
+                <span class="ml-4 px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-sm font-medium">
+                    Администратор
+                </span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/" class="py-2 px-3 rounded-md hover:bg-gray-100">Сайт</a>
+                <button id="logout-button" class="py-2 px-4 bg-gray-600 text-white rounded-md hover:bg-gray-700">Выйти</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div id="login-container" class="max-w-md mx-auto p-6 bg-white rounded-md shadow-md hidden">
+            <h2 class="text-2xl font-bold mb-6 text-center">Вход в админ-панель</h2>
+            <div id="login-error" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+                Неверный логин или пароль
+            </div>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Логин</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        class="w-full px-3 py-2 border rounded-md"
+                        required
+                    >
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-1">Пароль</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="w-full px-3 py-2 border rounded-md"
+                        required
+                    >
+                </div>
+                <button 
+                    type="submit" 
+                    class="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+                >
+                    Войти
+                </button>
+            </form>
+        </div>
+
+        <div id="admin-container" class="hidden">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold">Управление треками</h1>
+                <button 
+                    id="upload-button"
+                    class="py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                    Загрузить новый трек
+                </button>
+            </div>
+
+            <section id="upload-section" class="mb-12 hidden">
+                <h2 class="text-2xl font-bold mb-6">Загрузить трек</h2>
+                
+                <div class="bg-white rounded-md shadow-md p-6">
+                    <div id="upload-success" class="hidden mb-4 p-3 bg-green-100 text-green-700 rounded-md">
+                        Трек успешно загружен!
+                    </div>
+                    
+                    <div id="upload-error" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+                        Произошла ошибка при загрузке трека.
+                    </div>
+                    
+                    <form id="upload-form">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Аудио файл*</label>
+                            <input 
+                                type="file" 
+                                id="audioFile"
+                                name="audioFile"
+                                accept="audio/*" 
+                                class="w-full px-3 py-2 border rounded-md"
+                                required
+                            >
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Обложка</label>
+                            <input 
+                                type="file" 
+                                id="coverImage"
+                                name="coverImage"
+                                accept="image/*" 
+                                class="w-full px-3 py-2 border rounded-md"
+                            >
+                            <div id="cover-preview" class="mt-2 hidden">
+                                <img id="cover-image" class="mt-2 w-20 h-20 object-cover rounded-md" alt="Cover preview">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Название*</label>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                class="w-full px-3 py-2 border rounded-md"
+                                required
+                                placeholder="Введите название трека"
+                            >
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Исполнитель*</label>
+                            <input
+                                type="text"
+                                id="artist"
+                                name="artist"
+                                class="w-full px-3 py-2 border rounded-md"
+                                required
+                                placeholder="Введите имя исполнителя"
+                            >
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Жанр</label>
+                            <input
+                                type="text"
+                                id="genre"
+                                name="genre"
+                                class="w-full px-3 py-2 border rounded-md"
+                                placeholder="Например: Рок, Джаз, Электронная музыка"
+                            >
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-1">Описание</label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                class="w-full px-3 py-2 border rounded-md"
+                                rows="3"
+                                placeholder="Опишите ваш трек..."
+                            ></textarea>
+                        </div>
+                        
+                        <div id="upload-progress-container" class="mb-4 hidden">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div 
+                                    id="upload-progress-bar"
+                                    class="bg-blue-600 h-2.5 rounded-full" 
+                                    style="width: 0%"
+                                ></div>
+                            </div>
+                            <p id="upload-progress-text" class="text-center mt-1 text-sm">0%</p>
+                        </div>
+                        
+                        <div class="flex space-x-4">
+                            <button 
+                                type="button" 
+                                id="cancel-upload"
+                                class="flex-1 py-2 px-4 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400"
+                            >
+                                Отмена
+                            </button>
+                            <button 
+                                type="submit" 
+                                id="submit-upload"
+                                class="flex-1 py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+                            >
+                                Загрузить трек
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section id="edit-section" class="mb-12 hidden">
+                <h2 class="text-2xl font-bold mb-6">Редактировать трек</h2>
+                
+                <div class="bg-white rounded-md shadow-md p-6">
+                    <div id="edit-success" class="hidden mb-4 p-3 bg-green-100 text-green-700 rounded-md">
+                        Трек успешно обновлен!
+                    </div>
+                    
+                    <div id="edit-error" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+                        Произошла ошибка при обновлении трека.
+                    </div>
+                    
+                    <form id="edit-form">
+                        <input type="hidden" id="edit-id" name="id">
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Обложка</label>
+                            <div class="flex items-center space-x-4">
+                                <img id="edit-current-cover" class="w-20 h-20 object-cover rounded-md" alt="Current cover">
+                                <div>
+                                    <input 
+                                        type="file" 
+                                        id="edit-coverImage"
+                                        name="coverImage"
+                                        accept="image/*" 
+                                        class="w-full px-3 py-2 border rounded-md"
+                                    >
+                                    <div id="edit-cover-preview" class="mt-2 hidden">
+                                        <img id="edit-cover-image" class="mt-2 w-20 h-20 object-cover rounded-md" alt="Cover preview">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Название*</label>
+                            <input
+                                type="text"
+                                id="edit-title"
+                                name="title"
+                                class="w-full px-3 py-2 border rounded-md"
+                                required
+                            >
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Исполнитель*</label>
+                            <input
+                                type="text"
+                                id="edit-artist"
+                                name="artist"
+                                class="w-full px-3 py-2 border rounded-md"
+                                required
+                            >
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Жанр</label>
+                            <input
+                                type="text"
+                                id="edit-genre"
+                                name="genre"
+                                class="w-full px-3 py-2 border rounded-md"
+                            >
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-1">Описание</label>
+                            <textarea
+                                id="edit-description"
+                                name="description"
+                                class="w-full px-3 py-2 border rounded-md"
+                                rows="3"
+                            ></textarea>
+                        </div>
+                        
+                        <div class="flex space-x-4">
+                            <button 
+                                type="button" 
+                                id="cancel-edit"
+                                class="flex-1 py-2 px-4 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400"
+                            >
+                                Отмена
+                            </button>
+                            <button 
+                                type="submit" 
+                                id="submit-edit"
+                                class="flex-1 py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+                            >
+                                Сохранить изменения
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section id="tracks-section">
+                <h2 class="text-2xl font-bold mb-6">Список треков</h2>
+                
+                <div class="bg-white rounded-md shadow-md overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Трек</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Исполнитель</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Прослушивания</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tracks-list" class="bg-white divide-y divide-gray-200">
+                            <!-- Tracks will be loaded here -->
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                    Загрузка треков...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 class="text-xl font-bold mb-4">Подтверждение удаления</h3>
+            <p class="mb-6">Вы уверены, что хотите удалить трек "<span id="delete-track-name"></span>"?</p>
+            <div class="flex justify-end space-x-4">
+                <button id="cancel-delete" class="px-4 py-2 border rounded-md hover:bg-gray-100">Отмена</button>
+                <button id="confirm-delete" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API URL - используем относительный путь
+        const API_URL = '/api';
+        
+        // Элементы входа
+        const loginContainer = document.getElementById('login-container');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const adminContainer = document.getElementById('admin-container');
+        const logoutButton = document.getElementById('logout-button');
+        
+        // Элементы загрузки
+        const uploadButton = document.getElementById('upload-button');
+        const uploadSection = document.getElementById('upload-section');
+        const uploadForm = document.getElementById('upload-form');
+        const cancelUpload = document.getElementById('cancel-upload');
+        const uploadSuccess = document.getElementById('upload-success');
+        const uploadError = document.getElementById('upload-error');
+        const coverImage = document.getElementById('coverImage');
+        const coverPreview = document.getElementById('cover-preview');
+        const coverImagePreview = document.getElementById('cover-image');
+        const uploadProgressContainer = document.getElementById('upload-progress-container');
+        const uploadProgressBar = document.getElementById('upload-progress-bar');
+        const uploadProgressText = document.getElementById('upload-progress-text');
+        
+        // Элементы редактирования
+        const editSection = document.getElementById('edit-section');
+        const editForm = document.getElementById('edit-form');
+        const cancelEdit = document.getElementById('cancel-edit');
+        const editSuccess = document.getElementById('edit-success');
+        const editError = document.getElementById('edit-error');
+        const editCoverImage = document.getElementById('edit-coverImage');
+        const editCoverPreview = document.getElementById('edit-cover-preview');
+        const editCoverImagePreview = document.getElementById('edit-cover-image');
+        
+        // Элементы удаления
+        const deleteModal = document.getElementById('delete-modal');
+        const deleteTrackName = document.getElementById('delete-track-name');
+        const cancelDelete = document.getElementById('cancel-delete');
+        const confirmDelete = document.getElementById('confirm-delete');
+        
+        // Список треков
+        const tracksList = document.getElementById('tracks-list');
+        
+        // Проверка аутентификации при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            
+            // Предпросмотр обложки при загрузке
+            coverImage.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        coverImagePreview.src = e.target.result;
+                        coverPreview.classList.remove('hidden');
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+                    coverPreview.classList.add('hidden');
+                }
+            });
+            
+            // Предпросмотр обложки при редактировании
+            editCoverImage.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        editCoverImagePreview.src = e.target.result;
+                        editCoverPreview.classList.remove('hidden');
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+                    editCoverPreview.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Проверка авторизации
+        function checkAuth() {
+            const isAuthenticated = localStorage.getItem('admin_authenticated');
+            
+            if (isAuthenticated === 'true') {
+                loginContainer.classList.add('hidden');
+                adminContainer.classList.remove('hidden');
+                loadTracks();
+            } else {
+                loginContainer.classList.remove('hidden');
+                adminContainer.classList.add('hidden');
+            }
+        }
+        
+        // Обработка формы входа
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Проверяем учетные данные (в реальном приложении это должно быть на сервере)
+            if (username === 'tikserziku' && password === 'tikserziku01') {
+                localStorage.setItem('admin_authenticated', 'true');
+                loginError.classList.add('hidden');
+                checkAuth();
+            } else {
+                loginError.classList.remove('hidden');
+            }
+        });
+        
+        // Выход из админ-панели
+        logoutButton.addEventListener('click', function() {
+            localStorage.removeItem('admin_authenticated');
+            checkAuth();
+        });
+        
+        // Показать форму загрузки
+        uploadButton.addEventListener('click', function() {
+            uploadSection.classList.remove('hidden');
+            editSection.classList.add('hidden');
+            uploadSuccess.classList.add('hidden');
+            uploadError.classList.add('hidden');
+            uploadForm.reset();
+            coverPreview.classList.add('hidden');
+        });
+        
+        // Отмена загрузки
+        cancelUpload.addEventListener('click', function() {
+            uploadSection.classList.add('hidden');
+        });
+        
+        // Загрузка трека
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            document.getElementById('submit-upload').disabled = true;
+            document.getElementById('submit-upload').innerText = 'Загрузка...';
+            uploadProgressContainer.classList.remove('hidden');
+            uploadSuccess.classList.add('hidden');
+            uploadError.classList.add('hidden');
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        uploadProgressBar.style.width = percentComplete + '%';
+                        uploadProgressText.innerText = percentComplete + '%';
+                    }
+                });
+                
+                xhr.onload = function() {
+                    console.log('Ответ сервера:', xhr.status, xhr.responseText);
+                    
+                    if (xhr.status === 201) {
+                        uploadSuccess.classList.remove('hidden');
+                        uploadForm.reset();
+                        coverPreview.classList.add('hidden');
+                        
+                        // Обновить список треков
+                        setTimeout(() => {
+                            loadTracks();
+                            uploadSection.classList.add('hidden');
+                        }, 1000);
+                    } else {
+                        uploadError.textContent = 'Ошибка при загрузке трека: ' + (xhr.responseText || xhr.statusText);
+                        uploadError.classList.remove('hidden');
+                    }
+                    
+                    document.getElementById('submit-upload').disabled = false;
+                    document.getElementById('submit-upload').innerText = 'Загрузить трек';
+                    uploadProgressContainer.classList.add('hidden');
+                };
+                
+                xhr.onerror = function() {
+                    console.error('Ошибка XHR:', xhr.status, xhr.statusText);
+                    uploadError.textContent = 'Произошла ошибка при отправке запроса';
+                    uploadError.classList.remove('hidden');
+                    
+                    document.getElementById('submit-upload').disabled = false;
+                    document.getElementById('submit-upload').innerText = 'Загрузить трек';
+                    uploadProgressContainer.classList.add('hidden');
+                };
+                
+                xhr.open('POST', `${API_URL}/tracks`);
+                xhr.send(formData);
+            } catch (error) {
+                console.error('Ошибка при загрузке трека:', error);
+                uploadError.textContent = 'Произошла ошибка при загрузке трека';
+                uploadError.classList.remove('hidden');
+                
+                document.getElementById('submit-upload').disabled = false;
+                document.getElementById('submit-upload').innerText = 'Загрузить трек';
+                uploadProgressContainer.classList.add('hidden');
+            }
+        });
+        
+        // Загрузка списка треков
+        async function loadTracks() {
+            try {
+                const response = await fetch(`${API_URL}/tracks`);
+                const data = await response.json();
+                
+                if (data.tracks && data.tracks.length > 0) {
+                    tracksList.innerHTML = '';
+                    
+                    data.tracks.forEach(track => {
+                        const row = document.createElement('tr');
+                        
+                        // Форматирование даты
+                        const date = new Date(track.createdAt);
+                        const formattedDate = `${date.toLocaleDateString()}`;
+                        
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <img class="h-10 w-10 rounded-md object-cover" src="${track.coverImage || 'https://source.unsplash.com/random/100x100?music'}" alt="">
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">${track.title}</div>
+                                        <div class="text-sm text-gray-500">${track.genre || 'Не указан'}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">${track.artist}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">${formattedDate}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${track.plays || 0}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button 
+                                    class="text-blue-600 hover:text-blue-900 mr-3"
+                                    onclick="editTrack('${track.id}')"
+                                >
+                                    Редактировать
+                                </button>
+                                <button 
+                                    class="text-red-600 hover:text-red-900"
+                                    onclick="showDeleteModal('${track.id}', '${track.title}')"
+                                >
+                                    Удалить
+                                </button>
+                            </td>
+                        `;
+                        
+                        tracksList.appendChild(row);
+                    });
+                } else {
+                    tracksList.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                Треки не найдены
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Ошибка при загрузке треков:', error);
+                tracksList.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-red-500">
+                            Не удалось загрузить треки
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Редактирование трека
+        function editTrack(trackId) {
+            fetch(`${API_URL}/tracks/${trackId}`)
+                .then(response => response.json())
+                .then(track => {
+                    document.getElementById('edit-id').value = track.id;
+                    document.getElementById('edit-title').value = track.title;
+                    document.getElementById('edit-artist').value = track.artist;
+                    document.getElementById('edit-genre').value = track.genre || '';
+                    document.getElementById('edit-description').value = track.description || '';
+                    document.getElementById('edit-current-cover').src = track.coverImage || 'https://source.unsplash.com/random/100x100?music';
+                    
+                    editSection.classList.remove('hidden');
+                    uploadSection.classList.add('hidden');
+                    editSuccess.classList.add('hidden');
+                    editError.classList.add('hidden');
+                    editCoverPreview.classList.add('hidden');
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении данных трека:', error);
+                    alert('Не удалось загрузить данные трека');
+                });
+        }
+        
+        // Отмена редактирования
+        cancelEdit.addEventListener('click', function() {
+            editSection.classList.add('hidden');
+        });
+        
+        // Сохранение изменений трека
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const trackId = document.getElementById('edit-id').value;
+            
+            document.getElementById('submit-edit').disabled = true;
+            document.getElementById('submit-edit').innerText = 'Сохранение...';
+            editSuccess.classList.add('hidden');
+            editError.classList.add('hidden');
+            
+            fetch(`${API_URL}/tracks/${trackId}`, {
+                method: 'PUT',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Ошибка при обновлении трека');
+            })
+            .then(data => {
+                editSuccess.classList.remove('hidden');
+                
+                // Обновить список треков
+                setTimeout(() => {
+                    loadTracks();
+                    editSection.classList.add('hidden');
+                }, 1000);
+            })
+            .catch(error => {
+                console.error('Ошибка при обновлении трека:', error);
+                editError.textContent = error.message;
+                editError.classList.remove('hidden');
+            })
+            .finally(() => {
+                document.getElementById('submit-edit').disabled = false;
+                document.getElementById('submit-edit').innerText = 'Сохранить изменения';
+            });
+        });
+        
+        // Показать модальное окно удаления
+        function showDeleteModal(trackId, trackTitle) {
+            deleteTrackName.textContent = trackTitle;
+            confirmDelete.setAttribute('data-track-id', trackId);
+            deleteModal.classList.remove('hidden');
+        }
+        
+        // Отмена удаления
+        cancelDelete.addEventListener('click', function() {
+            deleteModal.classList.add('hidden');
+        });
+        
+        // Подтверждение удаления
+        confirmDelete.addEventListener('click', function() {
+            const trackId = this.getAttribute('data-track-id');
+            
+            fetch(`${API_URL}/tracks/${trackId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    deleteModal.classList.add('hidden');
+                    loadTracks();
+                } else {
+                    throw new Error('Ошибка при удалении трека');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при удалении трека:', error);
+                alert('Не удалось удалить трек');
+                deleteModal.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
