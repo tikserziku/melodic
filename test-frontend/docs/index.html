@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melodic Linker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .track-card {
+            transition: all 0.3s ease;
+        }
+        .track-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-white shadow-sm px-4 py-2">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="/" class="flex items-center text-xl font-bold text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    </svg>
+                    Melodic Linker
+                </a>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="#" class="py-2 px-3 rounded-md hover:bg-gray-100">Главная</a>
+                <a href="#" class="py-2 px-3 rounded-md hover:bg-gray-100">Обзор</a>
+                <a href="#upload-section" class="py-2 px-3 rounded-md hover:bg-gray-100">Загрузить</a>
+                <button class="py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">Войти</button>
+            </div>
+            <button class="md:hidden" id="mobile-menu-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="py-2 space-y-1">
+                <a href="#" class="block py-2 px-3 rounded-md hover:bg-gray-100">Главная</a>
+                <a href="#" class="block py-2 px-3 rounded-md hover:bg-gray-100">Обзор</a>
+                <a href="#upload-section" class="block py-2 px-3 rounded-md hover:bg-gray-100">Загрузить</a>
+                <button class="w-full text-left py-2 px-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">Войти</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <section class="mb-12">
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-8 text-white">
+                <div class="max-w-2xl mx-auto text-center">
+                    <h1 class="text-4xl font-bold mb-4">Melodic Linker - ваша музыка, ваше пространство</h1>
+                    <p class="text-xl mb-6">Загружайте, делитесь и открывайте новую музыку в одном месте</p>
+                    <button class="bg-white text-blue-600 font-bold py-3 px-6 rounded-lg hover:bg-gray-100 transition">
+                        Начать сейчас
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6">Популярные треки</h2>
+            <div id="tracks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="text-center py-8">
+                    <svg class="inline animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="mt-2 text-gray-600">Загрузка треков...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="upload-section" class="mb-12">
+            <h2 class="text-3xl font-bold mb-8 text-center">Загрузить музыку</h2>
+            
+            <div class="max-w-md mx-auto p-6 bg-white rounded-md shadow-md">
+                <div id="upload-success" class="hidden mb-4 p-3 bg-green-100 text-green-700 rounded-md">
+                    Трек успешно загружен!
+                </div>
+                
+                <div id="upload-error" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+                    Произошла ошибка при загрузке трека.
+                </div>
+                
+                <form id="upload-form">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Аудио файл*</label>
+                        <input 
+                            type="file" 
+                            id="audioFile"
+                            name="audioFile"
+                            accept="audio/*" 
+                            class="w-full px-3 py-2 border rounded-md"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Обложка</label>
+                        <input 
+                            type="file" 
+                            id="coverImage"
+                            name="coverImage"
+                            accept="image/*" 
+                            class="w-full px-3 py-2 border rounded-md"
+                        >
+                        <div id="cover-preview" class="mt-2 hidden">
+                            <img id="cover-image" class="mt-2 w-20 h-20 object-cover rounded-md" alt="Cover preview">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Название*</label>
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            class="w-full px-3 py-2 border rounded-md"
+                            required
+                            placeholder="Введите название трека"
+                        >
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Исполнитель*</label>
+                        <input
+                            type="text"
+                            id="artist"
+                            name="artist"
+                            class="w-full px-3 py-2 border rounded-md"
+                            required
+                            placeholder="Введите имя исполнителя"
+                        >
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Жанр</label>
+                        <input
+                            type="text"
+                            id="genre"
+                            name="genre"
+                            class="w-full px-3 py-2 border rounded-md"
+                            placeholder="Например: Рок, Джаз, Электронная музыка"
+                        >
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-1">Описание</label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            class="w-full px-3 py-2 border rounded-md"
+                            rows="3"
+                            placeholder="Опишите ваш трек..."
+                        ></textarea>
+                    </div>
+                    
+                    <div id="upload-progress-container" class="mb-4 hidden">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div 
+                                id="upload-progress-bar"
+                                class="bg-blue-600 h-2.5 rounded-full" 
+                                style="width: 0%"
+                            ></div>
+                        </div>
+                        <p id="upload-progress-text" class="text-center mt-1 text-sm">0%</p>
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        id="upload-button"
+                        class="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+                    >
+                        Загрузить трек
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-white py-6 border-t">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-gray-600">© 2025 Melodic Linker. Все права защищены.</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-600 hover:text-gray-900">О нас</a>
+                    <a href="#" class="text-gray-600 hover:text-gray-900">Условия использования</a>
+                    <a href="#" class="text-gray-600 hover:text-gray-900">Конфиденциальность</a>
+                    <a href="#" class="text-gray-600 hover:text-gray-900">Поддержка</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // API URL
+        const API_URL = 'https://muzik-2cf8c4ac10ed.herokuapp.com/api';
+        
+        // Мобильное меню
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Функция форматирования длительности
+        function formatDuration(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Загрузка треков
+        async function loadTracks() {
+            const tracksContainer = document.getElementById('tracks-container');
+            
+            try {
+                const response = await fetch(`${API_URL}/tracks`);
+                const data = await response.json();
+                
+                if (data.tracks && data.tracks.length > 0) {
+                    tracksContainer.innerHTML = '';
+                    
+                    data.tracks.forEach(track => {
+                        const trackCard = document.createElement('div');
+                        trackCard.className = 'track-card bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md';
+                        
+                        trackCard.innerHTML = `
+                            <div class="relative">
+                                <img 
+                                    src="${track.coverImage || 'https://source.unsplash.com/random/400x200?music'}" 
+                                    alt="${track.title}"
+                                    class="w-full h-48 object-cover"
+                                />
+                                <button class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-medium text-lg truncate">${track.title}</h3>
+                                <p class="text-sm text-gray-600 truncate">${track.artist}</p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <div class="text-sm text-gray-500">
+                                        ${formatDuration(track.duration)}
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-sm text-gray-500 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            ${track.plays}
+                                        </span>
+                                        <button 
+                                            class="text-blue-600 hover:text-blue-800 focus:outline-none"
+                                            title="Поделиться"
+                                            onclick="shareTrack('${track.id}', '${track.title}', '${track.artist}')"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        tracksContainer.appendChild(trackCard);
+                    });
+                } else {
+                    tracksContainer.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <p class="text-gray-600">Треки не найдены. Попробуйте загрузить собственную музыку!</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Ошибка при загрузке треков:', error);
+                tracksContainer.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-red-600">
+                        Не удалось загрузить треки. Пожалуйста, попробуйте позже.
+                    </div>
+                `;
+            }
+        }
+        
+        // Поделиться треком
+        function shareTrack(trackId, title, artist) {
+            if (navigator.share) {
+                navigator.share({
+                    title: `${title} - ${artist}`,
+                    text: `Послушайте трек "${title}" от ${artist} на Melodic Linker`,
+                    url: `${window.location.origin}/track/${trackId}`,
+                })
+                .then(() => console.log('Shared successfully'))
+                .catch((error) => console.log('Error sharing:', error));
+            } else {
+                alert(`Ссылка на трек: ${window.location.origin}/track/${trackId}`);
+            }
+        }
+        
+        // Обработка формы загрузки
+        const uploadForm = document.getElementById('upload-form');
+        const uploadButton = document.getElementById('upload-button');
+        const uploadProgressContainer = document.getElementById('upload-progress-container');
+        const uploadProgressBar = document.getElementById('upload-progress-bar');
+        const uploadProgressText = document.getElementById('upload-progress-text');
+        const uploadSuccess = document.getElementById('upload-success');
+        const uploadError = document.getElementById('upload-error');
+        const coverImage = document.getElementById('coverImage');
+        const coverPreview = document.getElementById('cover-preview');
+        const coverImagePreview = document.getElementById('cover-image');
+        
+        // Предпросмотр обложки
+        coverImage.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    coverImagePreview.src = e.target.result;
+                    coverPreview.classList.remove('hidden');
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                coverPreview.classList.add('hidden');
+            }
+        });
+        
+        // Отправка формы
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            uploadButton.disabled = true;
+            uploadButton.innerText = 'Загрузка...';
+            uploadProgressContainer.classList.remove('hidden');
+            uploadSuccess.classList.add('hidden');
+            uploadError.classList.add('hidden');
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        uploadProgressBar.style.width = percentComplete + '%';
+                        uploadProgressText.innerText = percentComplete + '%';
+                    }
+                });
+                
+                xhr.onload = function() {
+                    if (xhr.status === 201) {
+                        uploadSuccess.classList.remove('hidden');
+                        uploadForm.reset();
+                        coverPreview.classList.add('hidden');
+                        
+                        // Обновить список треков
+                        setTimeout(loadTracks, 1000);
+                    } else {
+                        uploadError.textContent = 'Ошибка при загрузке трека: ' + (xhr.responseText || xhr.statusText);
+                        uploadError.classList.remove('hidden');
+                    }
+                    
+                    uploadButton.disabled = false;
+                    uploadButton.innerText = 'Загрузить трек';
+                    uploadProgressContainer.classList.add('hidden');
+                };
+                
+                xhr.onerror = function() {
+                    uploadError.textContent = 'Произошла ошибка при отправке запроса';
+                    uploadError.classList.remove('hidden');
+                    
+                    uploadButton.disabled = false;
+                    uploadButton.innerText = 'Загрузить трек';
+                    uploadProgressContainer.classList.add('hidden');
+                };
+                
+                xhr.open('POST', `${API_URL}/tracks`);
+                xhr.send(formData);
+            } catch (error) {
+                console.error('Ошибка при загрузке трека:', error);
+                uploadError.textContent = 'Произошла ошибка при загрузке трека';
+                uploadError.classList.remove('hidden');
+                
+                uploadButton.disabled = false;
+                uploadButton.innerText = 'Загрузить трек';
+                uploadProgressContainer.classList.add('hidden');
+            }
+        });
+        
+        // Загрузка треков при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadTracks);
+    </script>
+</body>
+</html>
