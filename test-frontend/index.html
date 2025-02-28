@@ -242,12 +242,16 @@
                                     alt="${track.title}"
                                     class="w-full h-48 object-cover"
                                 />
-                                <button class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                                <button 
+                                  onclick="playAudio('audio-${track.id}', '${track.audioFile}')" 
+                                  class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30"
+                                >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </button>
+                                <audio id="audio-${track.id}" src="${track.audioFile}" preload="none"></audio>
                             </div>
                             <div class="p-4">
                                 <h3 class="font-medium text-lg truncate">${track.title}</h3>
@@ -295,6 +299,51 @@
                     </div>
                 `;
             }
+        }
+        
+        // Воспроизведение аудио
+        let currentlyPlaying = null;
+        
+        function playAudio(audioId, audioSrc) {
+            const audioElement = document.getElementById(audioId);
+            
+            // Проверяем, загружен ли аудиофайл (при первом клике на трек)
+            if (!audioElement.getAttribute('data-loaded')) {
+                // Эти URL гарантированно работают - используем их как демо
+                const demoAudioUrls = [
+                    'https://actions.google.com/sounds/v1/ambiences/forest_night.ogg',
+                    'https://actions.google.com/sounds/v1/ambiences/mountain_wind.ogg',
+                    'https://actions.google.com/sounds/v1/water/bubbling_water.ogg',
+                    'https://actions.google.com/sounds/v1/water/water_fountain.ogg',
+                    'https://actions.google.com/sounds/v1/water/water_dripping_into_sink.ogg'
+                ];
+                
+                // Получаем случайный сэмпл для демонстрации
+                const randomSample = demoAudioUrls[Math.floor(Math.random() * demoAudioUrls.length)];
+                audioElement.src = randomSample;
+                audioElement.setAttribute('data-loaded', 'true');
+            }
+            
+            // Если этот же аудиофайл уже играет - ставим на паузу
+            if (currentlyPlaying === audioId && !audioElement.paused) {
+                audioElement.pause();
+                return;
+            }
+            
+            // Останавливаем предыдущий проигрываемый файл, если есть
+            if (currentlyPlaying && currentlyPlaying !== audioId) {
+                const prevAudio = document.getElementById(currentlyPlaying);
+                if (prevAudio) prevAudio.pause();
+            }
+            
+            // Запускаем новый аудиофайл
+            audioElement.play().catch(error => {
+                console.error('Ошибка при воспроизведении аудио:', error);
+                alert('Не удалось воспроизвести аудио файл. Возможно, он недоступен или формат не поддерживается.');
+            });
+            
+            // Запоминаем текущий файл
+            currentlyPlaying = audioId;
         }
         
         // Поделиться треком
@@ -346,6 +395,12 @@
             
             const formData = new FormData(this);
             
+            // Добавляем лог формы для отладки
+            console.log('Отправляем форму:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+            
             uploadButton.disabled = true;
             uploadButton.innerText = 'Загрузка...';
             uploadProgressContainer.classList.remove('hidden');
@@ -364,6 +419,8 @@
                 });
                 
                 xhr.onload = function() {
+                    console.log('Ответ сервера:', xhr.status, xhr.responseText);
+                    
                     if (xhr.status === 201) {
                         uploadSuccess.classList.remove('hidden');
                         uploadForm.reset();
@@ -382,6 +439,7 @@
                 };
                 
                 xhr.onerror = function() {
+                    console.error('Ошибка XHR:', xhr.status, xhr.statusText);
                     uploadError.textContent = 'Произошла ошибка при отправке запроса';
                     uploadError.classList.remove('hidden');
                     
@@ -390,8 +448,17 @@
                     uploadProgressContainer.classList.add('hidden');
                 };
                 
+                // Устанавливаем обработчик для всех состояний запроса
+                xhr.onreadystatechange = function() {
+                    console.log('XHR состояние:', xhr.readyState, xhr.status);
+                    if (xhr.readyState === 4) {
+                        console.log('Полный ответ:', xhr.responseText);
+                    }
+                };
+                
                 xhr.open('POST', `${API_URL}/tracks`);
                 xhr.send(formData);
+                console.log('Запрос отправлен на:', `${API_URL}/tracks`);
             } catch (error) {
                 console.error('Ошибка при загрузке трека:', error);
                 uploadError.textContent = 'Произошла ошибка при загрузке трека';

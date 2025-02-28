@@ -143,6 +143,10 @@ module.exports = function(app) {
     { name: 'coverImage', maxCount: 1 }
   ]), (req, res) => {
     try {
+      console.log('Получен POST запрос на /api/tracks');
+      console.log('req.body:', req.body);
+      console.log('req.files:', req.files);
+      
       const { title, artist, genre, description } = req.body;
       
       if (!title || !artist) {

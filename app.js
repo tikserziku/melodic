@@ -15,17 +15,13 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Подключаем express если его нет в app-simple-direct
-if (!app.use) {
-  const express = require('express');
-}
-
 // Настройка для API (бэкенд)
 try {
+  console.log('Попытка настройки API...');
   require('./backend/src/app-simple-direct')(app);
   console.log('API успешно настроено');
 } catch (error) {
-  console.error('Ошибка при настройке API:', error);
+  console.error('Ошибка при настройке API:', error.stack);
 }
 
 // Настраиваем статические файлы
@@ -38,8 +34,8 @@ app.get('*', (req, res) => {
   }
 });
 
-// Получаем порт из переменных окружения или используем 5000
-const PORT = process.env.PORT || 5000;
+// Получаем порт из переменных окружения или используем 5001
+const PORT = process.env.PORT || 5001;
 
 // Запускаем сервер
 app.listen(PORT, () => {
