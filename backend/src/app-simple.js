@@ -213,7 +213,11 @@ app.use((err, req, res, next) => {
   next();
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Uploads directory: ${uploadDir}`);
-});
+// Не запускаем сервер здесь, т.к. это делается в корневом server.js
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+//   console.log(`Uploads directory: ${uploadDir}`);
+// });
+
+// Экспортируем app для использования в server.js
+module.exports = app;
