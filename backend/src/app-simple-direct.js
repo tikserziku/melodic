@@ -4,41 +4,13 @@ const multer = require('multer');
 const express = require('express');
 
 // Служебные переменные для хранения данных
-let tracks = [
-  {
-    id: '1',
-    title: 'Лунная соната',
-    artist: 'Людвиг ван Бетховен',
-    description: 'Одно из самых известных произведений классической музыки',
-    genre: 'Классическая',
-    coverImage: 'https://source.unsplash.com/random/200x200?piano',
-    audioFile: 'https://actions.google.com/sounds/v1/ambiences/forest_night.ogg',
-    duration: 318,
-    plays: 1245,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    title: 'Времена года: Весна',
-    artist: 'Антонио Вивальди',
-    description: 'Часть знаменитого цикла "Времена года"',
-    genre: 'Классическая',
-    coverImage: 'https://source.unsplash.com/random/200x200?spring',
-    audioFile: 'https://actions.google.com/sounds/v1/ambiences/mountain_wind.ogg',
-    duration: 258,
-    plays: 876,
-    createdAt: new Date().toISOString()
-  }
-];
+// Начинаем с пустого массива треков, чтобы не удалять пользовательские данные
+let tracks = [];
 
 // Функция, которая настраивает API
 module.exports = function(app, config = {}) {
-  // Используем предоставленные примеры треков, если они есть
-  if (config.exampleTracks && Array.isArray(config.exampleTracks)) {
-    console.log('Получены примеры треков:', config.exampleTracks.length);
-    tracks = tracks.concat(config.exampleTracks);
-    console.log('Треки обновлены примерами, всего:', tracks.length);
-  }
+  // Сохраняем текущие треки, которые были загружены пользователем
+  console.log('Инициализация API с сохранением пользовательских данных');
   // Создаем директорию для хранения загруженных файлов
   const isProduction = process.env.NODE_ENV === 'production';
   const uploadDir = isProduction 

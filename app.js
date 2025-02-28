@@ -19,41 +19,13 @@ app.use(express.urlencoded({ extended: true }));
 try {
   console.log('Попытка настройки API...');
   
-  // Установка тестовых треков для примеров
-  const exampleTracks = [
-    {
-      id: '1001',
-      title: 'Лунная соната',
-      artist: 'Людвиг ван Бетховен',
-      description: 'Одно из самых известных произведений классической музыки',
-      genre: 'Классическая',
-      coverImage: 'https://source.unsplash.com/random/200x200?piano',
-      audioFile: 'https://actions.google.com/sounds/v1/ambiences/forest_night.ogg',
-      duration: 318,
-      plays: 1245,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: '1002',
-      title: 'Времена года: Весна',
-      artist: 'Антонио Вивальди',
-      description: 'Часть знаменитого цикла "Времена года"',
-      genre: 'Классическая',
-      coverImage: 'https://source.unsplash.com/random/200x200?spring',
-      audioFile: 'https://actions.google.com/sounds/v1/ambiences/mountain_wind.ogg',
-      duration: 258,
-      plays: 876,
-      createdAt: new Date().toISOString()
-    }
-  ];
-  
-  // Передаем примеры треков в модуль API
+  // Не добавляем примеры треков, чтобы сохранять пользовательские данные
   const apiConfig = {
-    exampleTracks: exampleTracks
+    // Пустая конфигурация без демо-треков
   };
   
   require('./backend/src/app-simple-direct')(app, apiConfig);
-  console.log('API успешно настроено с примерами треков');
+  console.log('API успешно настроено');
 } catch (error) {
   console.error('Ошибка при настройке API:', error.stack);
 }
