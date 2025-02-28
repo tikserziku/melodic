@@ -134,9 +134,12 @@
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+        // Проверяем, существуют ли элементы
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
         
         // Функция форматирования длительности
         function formatDuration(seconds) {
@@ -369,24 +372,31 @@
         const coverPreview = document.getElementById('cover-preview');
         const coverImagePreview = document.getElementById('cover-image');
         
-        // Предпросмотр обложки
-        coverImage.addEventListener('change', function(e) {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    coverImagePreview.src = e.target.result;
-                    coverPreview.classList.remove('hidden');
+        // Предпросмотр обложки - проверяем, существует ли элемент
+        if (coverImage) {
+            coverImage.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        if (coverImagePreview) {
+                            coverImagePreview.src = e.target.result;
+                            if (coverPreview) coverPreview.classList.remove('hidden');
+                        }
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+                    if (coverPreview) coverPreview.classList.add('hidden');
                 }
-                
-                reader.readAsDataURL(this.files[0]);
-            } else {
-                coverPreview.classList.add('hidden');
-            }
-        });
+            });
+        } else {
+            console.log("Элемент загрузки обложки не найден");
+        }
         
-        // Отправка формы
-        uploadForm.addEventListener('submit', async function(e) {
+        // Отправка формы - проверяем, существует ли элемент
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
@@ -464,7 +474,10 @@
                 uploadButton.innerText = 'Загрузить трек';
                 uploadProgressContainer.classList.add('hidden');
             }
-        });
+            });
+        } else {
+            console.log("Форма загрузки не найдена");
+        }
         
         // Функция лайка трека
         function likeTrack(trackId) {
@@ -579,9 +592,17 @@
             }
         };
         
-        // Загрузка треков при загрузке страницы
+        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
-            loadTracks();
+            console.log('Страница загружена, начинаем загрузку треков');
+            
+            // Проверяем наличие контейнера треков
+            const tracksContainer = document.getElementById('tracks-container');
+            if (tracksContainer) {
+                loadTracks();
+            } else {
+                console.log('Контейнер треков не найден');
+            }
         });
     </script>
 </body>
