@@ -160,17 +160,20 @@ module.exports = function(app) {
       const audioFile = req.files.audioFile[0];
       const coverImage = req.files.coverImage ? req.files.coverImage[0] : null;
       
-      const hostname = req.headers.host || 'localhost:5000';
-      const protocol = req.secure ? 'https' : 'http';
+      console.log('Файл аудио загружен:', audioFile);
+      if (coverImage) {
+        console.log('Обложка загружена:', coverImage);
+      }
       
+      // Формируем относительные пути, которые будут работать с любым хостом
       const newTrack = {
         id: Date.now().toString(),
         title,
         artist,
         description: description || '',
         genre: genre || 'Другое',
-        audioFile: `${protocol}://${hostname}/uploads/audio/${audioFile.filename}`,
-        coverImage: coverImage ? `${protocol}://${hostname}/uploads/covers/${coverImage.filename}` : null,
+        audioFile: `/uploads/audio/${audioFile.filename}`,
+        coverImage: coverImage ? `/uploads/covers/${coverImage.filename}` : null,
         duration: 180, // Заглушка для длительности
         plays: 0,
         createdAt: new Date().toISOString()
