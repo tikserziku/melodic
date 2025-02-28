@@ -8,7 +8,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Создаем директорию для хранения загруженных файлов
-const uploadDir = path.join(__dirname, '../uploads');
+// В Heroku у нас нет постоянной файловой системы, но для демо будем использовать tmp
+const isProduction = process.env.NODE_ENV === 'production';
+const uploadDir = isProduction 
+  ? path.join('/tmp', 'melodic-linker-uploads')
+  : path.join(__dirname, '../uploads');
 const coverDir = path.join(uploadDir, 'covers');
 const audioDir = path.join(uploadDir, 'audio');
 
@@ -72,6 +76,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(uploadDir));
+
+// Добавляем CORS заголовки для работы с фронтендом на другом домене
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
+    return res.status(200).json({});
+  }
+  next();
+});
 
 // Служебные переменные для хранения данных
 let tracks = [
