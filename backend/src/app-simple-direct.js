@@ -118,6 +118,10 @@ module.exports = function(app) {
 
   // Получение всех треков
   app.get('/api/tracks', (req, res) => {
+    console.log('Запрос на получение треков');
+    console.log('Количество треков:', tracks.length);
+    console.log('Треки:', JSON.stringify(tracks).substring(0, 200) + '...');
+    
     res.json({
       tracks,
       page: 1,

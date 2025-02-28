@@ -156,10 +156,20 @@
                 const data = await response.json();
                 console.log('Данные треков:', data);
                 
+                // Добавляем обходной путь, если tracks не является массивом
+                if (data && !Array.isArray(data.tracks) && data.tracks) {
+                    // Преобразуем объект в массив, если это объект
+                    if (typeof data.tracks === 'object') {
+                        data.tracks = Object.values(data.tracks);
+                    }
+                }
+                
                 if (data.tracks && data.tracks.length > 0) {
                     tracksContainer.innerHTML = '';
+                    console.log('Обработка треков, количество:', data.tracks.length);
                     
-                    data.tracks.forEach(track => {
+                    data.tracks.forEach((track, index) => {
+                        console.log(`Обработка трека ${index+1}:`, track.title);
                         // Добавляем информацию о лайках и комментариях
                         track.liked = userLikes[track.id] === true;
                         track.likes = (track.likes || 0) + (track.liked ? 1 : 0);
