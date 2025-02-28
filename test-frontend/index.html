@@ -150,8 +150,11 @@
             const tracksContainer = document.getElementById('tracks-container');
             
             try {
+                console.log('Загрузка треков...');
                 const response = await fetch(`${API_URL}/tracks`);
+                console.log('Ответ API:', response.status);
                 const data = await response.json();
+                console.log('Данные треков:', data);
                 
                 if (data.tracks && data.tracks.length > 0) {
                     tracksContainer.innerHTML = '';
