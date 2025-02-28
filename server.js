@@ -1,16 +1,36 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const app = require('./backend/src/app-simple');
+const fs = require('fs');
+const multer = require('multer');
 
-// Статические файлы
-app.use(express.static(path.join(__dirname, 'test-frontend')));
+// Создаем Express приложение
+const app = express();
 
-// Маршрут для всех остальных запросов - отдаем index.html
-app.get('*', (req, res) => {
-  // Проверяем, не API ли это запрос
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, 'test-frontend', 'index.html'));
+// Базовые middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Импортируем бэкенд API
+require('./backend/src/app-simple');
+
+// Настраиваем статические файлы - сначала проверяем наличие директории
+const staticDir = path.join(__dirname, 'test-frontend');
+if (fs.existsSync(staticDir)) {
+  console.log(`Статические файлы будут обслуживаться из ${staticDir}`);
+  app.use(express.static(staticDir));
+} else {
+  console.log(`Директория ${staticDir} не существует!`);
+}
+
+// Корневой маршрут
+app.get('/', (req, res) => {
+  const indexPath = path.join(__dirname, 'test-frontend', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.send('Melodic Linker - Frontend not found. Please check the deployment.');
   }
 });
 

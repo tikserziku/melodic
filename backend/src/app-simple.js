@@ -213,11 +213,14 @@ app.use((err, req, res, next) => {
   next();
 });
 
-// Не запускаем сервер здесь, т.к. это делается в корневом server.js
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-//   console.log(`Uploads directory: ${uploadDir}`);
-// });
+// Получаем экземпляр приложения express из родительского скрипта
+const parentApp = require('express')();
 
-// Экспортируем app для использования в server.js
-module.exports = app;
+// Монтируем все маршруты на родительское приложение с префиксом /api
+parentApp.use('/api', app);
+
+// Отладочная информация
+console.log(`API настроено. Каталог загрузок: ${uploadDir}`);
+
+// Не экспортируем, т.к. мы уже монтировали маршруты
+// module.exports = app;
