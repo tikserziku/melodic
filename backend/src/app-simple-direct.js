@@ -3,8 +3,42 @@ const fs = require('fs');
 const multer = require('multer');
 const express = require('express');
 
+// Служебные переменные для хранения данных
+let tracks = [
+  {
+    id: '1',
+    title: 'Лунная соната',
+    artist: 'Людвиг ван Бетховен',
+    description: 'Одно из самых известных произведений классической музыки',
+    genre: 'Классическая',
+    coverImage: 'https://source.unsplash.com/random/200x200?piano',
+    audioFile: 'https://actions.google.com/sounds/v1/ambiences/forest_night.ogg',
+    duration: 318,
+    plays: 1245,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: '2',
+    title: 'Времена года: Весна',
+    artist: 'Антонио Вивальди',
+    description: 'Часть знаменитого цикла "Времена года"',
+    genre: 'Классическая',
+    coverImage: 'https://source.unsplash.com/random/200x200?spring',
+    audioFile: 'https://actions.google.com/sounds/v1/ambiences/mountain_wind.ogg',
+    duration: 258,
+    plays: 876,
+    createdAt: new Date().toISOString()
+  }
+];
+
 // Функция, которая настраивает API
-module.exports = function(app) {
+module.exports = function(app, config = {}) {
+  // Используем предоставленные примеры треков, если они есть
+  if (config.exampleTracks && Array.isArray(config.exampleTracks)) {
+    console.log('Получены примеры треков:', config.exampleTracks.length);
+    tracks = tracks.concat(config.exampleTracks);
+    console.log('Треки обновлены примерами, всего:', tracks.length);
+  }
   // Создаем директорию для хранения загруженных файлов
   const isProduction = process.env.NODE_ENV === 'production';
   const uploadDir = isProduction 
@@ -71,45 +105,7 @@ module.exports = function(app) {
   // Доступ к файлам загрузок
   app.use('/uploads', express.static(uploadDir));
 
-  // Служебные переменные для хранения данных
-  let tracks = [
-    {
-      id: '1',
-      title: 'Лунная соната',
-      artist: 'Людвиг ван Бетховен',
-      description: 'Одно из самых известных произведений классической музыки',
-      genre: 'Классическая',
-      coverImage: 'https://source.unsplash.com/random/200x200?piano',
-      audioFile: 'https://example.com/moonlight-sonata.mp3',
-      duration: 318,
-      plays: 1245,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: '2',
-      title: 'Времена года: Весна',
-      artist: 'Антонио Вивальди',
-      description: 'Часть знаменитого цикла "Времена года"',
-      genre: 'Классическая',
-      coverImage: 'https://source.unsplash.com/random/200x200?spring',
-      audioFile: 'https://example.com/spring.mp3',
-      duration: 258,
-      plays: 876,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: '3',
-      title: 'Полет шмеля',
-      artist: 'Николай Римский-Корсаков',
-      description: 'Виртуозная оркестровая интерлюдия',
-      genre: 'Классическая',
-      coverImage: 'https://source.unsplash.com/random/200x200?bee',
-      audioFile: 'https://example.com/flight-of-bumblebee.mp3',
-      duration: 192,
-      plays: 657,
-      createdAt: new Date().toISOString()
-    }
-  ];
+  // Примечание: треки определены в начале файла
 
   // Маршруты API
   app.get('/api', (req, res) => {
